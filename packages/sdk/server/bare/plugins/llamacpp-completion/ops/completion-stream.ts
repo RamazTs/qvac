@@ -49,6 +49,13 @@ interface ResponseWithStats {
   stats?: LlmStats;
 }
 
+interface LlmAddonResponse extends ResponseWithStats {
+  once(event: string, callback: (...args: unknown[]) => void): void;
+  cancel(): Promise<void>;
+  await(): Promise<unknown>;
+  iterate(): AsyncIterable<unknown>;
+}
+
 interface ChatHistory {
   role?: string;
   content?: string;
@@ -157,7 +164,7 @@ async function initSystemPromptCache(
   logCacheInit(cacheKey, systemPromptToUse, toolCount);
   logMessagesToAddon(primeMessages, "CACHE_INIT");
 
-  const primeResponse = await model.run(primeMessages);
+  const primeResponse = (await model.run(primeMessages)) as LlmAddonResponse;
 
   primeResponse.once("output", () => {
     void primeResponse.cancel();
@@ -217,7 +224,7 @@ async function* processModelResponse(
   const runFn = model.run.bind(model) as (
     msgs: ChatHistory[],
     opts?: unknown,
-  ) => ReturnType<typeof model.run>;
+  ) => Promise<LlmAddonResponse>;
   const runOptions = generationParams ? { generationParams } : undefined;
 
   const modelStart = nowMs();
@@ -258,10 +265,10 @@ async function* processModelResponse(
     if (sessionMsg?.content) {
       logCacheSave(sessionMsg.content);
       const cachePath = sessionMsg.content;
-      const saveResp = await model.run([
+      const saveResp = (await model.run([
         { role: "session", content: cachePath },
         { role: "session", content: "save" },
-      ]);
+      ])) as LlmAddonResponse;
       try {
         await saveResp.await();
       } catch (err: unknown) {
@@ -270,7 +277,7 @@ async function* processModelResponse(
     }
   }
 
-  const responseWithStats = response as unknown as ResponseWithStats;
+  const responseWithStats = response as ResponseWithStats;
   const stats: CompletionStats = {
     ...(responseWithStats.stats?.TTFT !== undefined && {
       timeToFirstToken: responseWithStats.stats.TTFT,

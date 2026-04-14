@@ -13,7 +13,6 @@ export async function cancel(params: CancelInferenceBaseParams) {
     throw new ModelNotLoadedError(modelId);
   }
 
-  if (model.addon && model.addon.cancel) {
-    await model.addon.cancel();
-  }
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any
+  if ((model as any).addon?.cancel) await (model as any).addon.cancel();
 }

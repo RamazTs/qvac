@@ -122,7 +122,7 @@ export async function* ocr(params: OCRParams): AsyncGenerator<
     const response = (await model.run({
       path: imagePath,
       ...(params.options && { options: params.options }),
-    })) as unknown as OCRResponse;
+    })) as OCRResponse;
 
     const rawData: unknown[] = [];
     await response

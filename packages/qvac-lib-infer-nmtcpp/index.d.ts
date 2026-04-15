@@ -41,6 +41,15 @@ export interface InferenceClientState {
   destroyed: boolean
 }
 
+export interface RuntimeStats {
+  totalTokens: number
+  totalTime: number
+  decodeTime: number
+  TPS: number
+  encodeTime?: number
+  TTFT?: number
+}
+
 export default class TranslationNmtcpp {
   static readonly ModelTypes: TranslationNmtcppModelTypes
   constructor(args: TranslationNmtcppArgs)

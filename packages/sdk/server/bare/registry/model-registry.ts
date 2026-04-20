@@ -6,15 +6,19 @@ import {
 import type FilesystemDL from "@qvac/dl-filesystem";
 import type { CanonicalModelType } from "@/schemas";
 import { getServerLogger } from "@/logging";
+import type BaseInference from "@qvac/infer-base";
+
 const logger = getServerLogger();
 
-/** Runtime model interface used by the registry and ops layer. */
-export interface AnyModel {
-  load(force?: boolean): Promise<void>;
-  run(input: unknown): Promise<unknown>;
-  unload?(): void | Promise<void>;
-  reload?(config: unknown): Promise<void>;
+interface AddonInterface {
+  cancel(jobId?: string): Promise<void>;
 }
+
+// BaseInference provides: load, run (returns QvacResponse), unload, destroy, pause, unpause, stop, status
+export type AnyModel = Omit<BaseInference, "addon"> & {
+  reload?(config: unknown): Promise<void>;
+  addon?: AddonInterface;
+};
 
 interface DelegateOptions {
   topic: string;

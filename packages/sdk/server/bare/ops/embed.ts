@@ -30,7 +30,7 @@ export async function embed(params: EmbedParams): Promise<EmbedResult> {
   const model = getModel(modelId);
 
   const modelStart = nowMs();
-  const response = (await model.run(text)) as EmbedResponse;
+  const response = (await model.run(text)) as unknown as EmbedResponse;
   const rawEmbeddings = await response.await();
   const modelExecutionMs = nowMs() - modelStart;
 

@@ -14,7 +14,7 @@ export async function* diffusion(
 ): AsyncGenerator<DiffusionStreamResponse> {
   const model = getModel(request.modelId);
 
-  const response = (await model.run({
+  const response = await model.run({
     prompt: request.prompt,
     negative_prompt: request.negative_prompt,
     width: request.width,
@@ -28,7 +28,7 @@ export async function* diffusion(
     batch_count: request.batch_count,
     vae_tiling: request.vae_tiling,
     cache_preset: request.cache_preset,
-  })) as ResponseWithStats & { iterate(): AsyncIterable<unknown> };
+  });
 
   let outputIndex = 0;
 
@@ -56,7 +56,7 @@ export async function* diffusion(
     }
   }
 
-  const responseWithStats = response as ResponseWithStats;
+  const responseWithStats = response as unknown as ResponseWithStats;
   yield {
     type: "diffusionStream",
     done: true,

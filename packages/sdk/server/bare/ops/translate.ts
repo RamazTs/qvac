@@ -82,14 +82,14 @@ export async function* translate(
         ];
 
   const modelStart = nowMs();
-  const response = (await model.run(input)) as NmtResponse | LlmResponse;
+  const response = await model.run(input);
 
   // Check if the response has an iterate method (like LLM models)
   if (
     canonicalModelType === ModelType.llamacppCompletion &&
     typeof response.iterate === "function"
   ) {
-    const llmResponse = response as LlmResponse;
+    const llmResponse = response as unknown as LlmResponse;
     for await (const token of llmResponse.iterate()) {
       yield token;
     }
@@ -105,7 +105,7 @@ export async function* translate(
     return buildStreamResult(modelExecutionMs, stats);
   }
 
-  const nmtResponse = response as NmtResponse;
+  const nmtResponse = response as unknown as NmtResponse;
   for await (const token of nmtResponse.iterate()) {
     yield token;
   }

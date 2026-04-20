@@ -1,8 +1,8 @@
 import {
+  type AnyModel,
   getModel,
   getModelConfig,
   getModelEntry,
-  type AnyModel,
 } from "@/server/bare/registry/model-registry";
 import {
   ModelType,
@@ -110,7 +110,7 @@ export async function* transcribe(
     const audioStream = await createAudioStream(params.audioChunk, audioFormat);
 
     const modelStart = nowMs();
-    response = (await model.run(audioStream)) as TranscribeResponse;
+    response = (await model.run(audioStream)) as unknown as TranscribeResponse;
 
     for await (const output of response.iterate()) {
       logger.debug("Streaming Transcription Update:", output);
@@ -168,7 +168,7 @@ export async function* transcribeStream(
       );
     }
 
-    const response = (await model.runStreaming(audioInputStream)) as TranscribeResponse;
+    const response = await model.runStreaming(audioInputStream);
 
     for await (const segments of response.iterate()) {
       logger.debug("Live Transcription Update:", segments);

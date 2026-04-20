@@ -12,7 +12,7 @@ export async function* textToSpeech(
   const model = getModel(modelId);
 
   const modelStart = nowMs();
-  const response = (await model.run({ input: text, inputType })) as TtsResponse;
+  const response = (await model.run({ input: text, inputType })) as unknown as TtsResponse;
 
   if (!stream) {
     // Non-streaming mode: collect all chunks and return once
